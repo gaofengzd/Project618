@@ -1,0 +1,1 @@
+# Flask-JWT-Extended 初始化

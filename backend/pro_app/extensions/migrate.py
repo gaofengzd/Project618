@@ -1,0 +1,1 @@
+# Flask-Migrate 初始化
