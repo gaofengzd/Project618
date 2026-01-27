@@ -1,3 +1,10 @@
+创建虚拟环境
+python -m venv venv
+激活虚拟环境
+venv\Scripts\activate
+安装包
+pip install -r requirements.txt
+
 backend/  # Flask 后端项目根目录
 ├── .env                # 全局环境变量（数据库配置、JWT 密钥、端口等）
 ├── .gitignore          # Git 忽略文件（venv、__pycache__、.pyc 等）
