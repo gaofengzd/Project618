@@ -3,6 +3,7 @@ from pro_app.config import Config
 from pro_app.api import *
 from pro_app.extensions.db import db, cors
 
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
