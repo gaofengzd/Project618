@@ -4,6 +4,7 @@ python -m venv venv
 venv\Scripts\activate
 安装包
 pip install -r requirements.txt
+让GitHub忽略跟踪的文件添加到.gitignore文件里
 
 backend/  # Flask 后端项目根目录
 ├── .env                # 全局环境变量（数据库配置、JWT 密钥、端口等）
