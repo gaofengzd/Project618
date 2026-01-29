@@ -61,8 +61,15 @@ const currentRouteName = computed(() => route.meta.title || '首页')
 </script>
 
 <style scoped lang="scss">
-.common-layout, .el-container { height: 100vh; }
-.aside-menu { background-color: #1d2b36; display: flex; flex-direction: column; }
+.common-layout,
+.el-container {
+  height: 100vh;
+}
+.aside-menu {
+  background-color: #1d2b36;
+  display: flex;
+  flex-direction: column;
+}
 .logo {
   height: 60px;
   display: flex;
@@ -81,6 +88,13 @@ const currentRouteName = computed(() => route.meta.title || '首页')
   background: #fff;
   height: 60px;
 }
-.main-content { background-color: #f5f7fa; padding: 20px; }
-.user-info { display: flex; align-items: center; cursor: pointer; }
+.main-content {
+  background-color: #f5f7fa;
+  padding: 20px;
+}
+.user-info {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
 </style>
