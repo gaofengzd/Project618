@@ -28,7 +28,7 @@ export default defineConfigWithVueTs(
       'vue/multi-word-component-names': 'off',
 
       // 如果有未使用的变量报错，可以改为警告 'warn' 或者关闭 'off'
-      '@typescript-eslint/no-unused-vars': 'warn'
+      '@typescript-eslint/no-unused-vars': 'warn',
     }
   },
 
