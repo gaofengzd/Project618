@@ -6,7 +6,7 @@
         <h2>飞机故障检测平台</h2>
       </div>
 
-      <el-form :model="loginForm" :rules="rules" ref="loginFormRef" size="large">
+      <el-form :model="loginForm" @submit.prevent :rules="rules" ref="loginFormRef" size="large">
         <el-form-item prop="username">
           <el-input
             v-model="loginForm.username"
@@ -25,7 +25,7 @@
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" class="login-btn" :loading="loading" @click="handleLogin">
+          <el-button type="primary" class="login-btn" :loading="loading" @click.prevent="handleLogin">
             立即登录
           </el-button>
         </el-form-item>
@@ -58,21 +58,19 @@ const rules = {
 const handleLogin = async () => {
   if (!loginFormRef.value) return
 
-  await loginFormRef.value.validate((valid) => {
+  await loginFormRef.value.validate(async(valid) => {
     if (valid) {
       loading.value = true
       // 模拟登录延迟
-      setTimeout(() => {
-        const success = userStore.login(loginForm)
-        loading.value = false
+      const success = await userStore.login(loginForm)
+      loading.value = false
 
-        if (success) {
-          ElMessage.success('登录成功，欢迎回来！')
-          router.push('/') // 登录成功跳转首页
-        } else {
-          ElMessage.error('账号或密码错误')
-        }
-      }, 600)
+      if (success) {
+        ElMessage.success('登录成功')
+        router.push('/')
+      } else {
+        ElMessage.error('账号或密码错误')
+      }
     }
   })
 }

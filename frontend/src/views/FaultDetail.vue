@@ -63,9 +63,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import TrendChart from '../components/TrendChart.vue'
+import axios from 'axios'
 
 const route = useRoute()
 
@@ -77,86 +78,38 @@ const queryFault = computed(() => route.query.fault as string) // 故障名称
 // X轴时间轴 (通用)
 const timeData = ['00:00', '00:10', '00:20', '00:30', '00:40', '00:50', '01:00', '01:10', '01:20', '01:30', '01:40', '01:50']
 
-// === 模拟后端数据库 (List 结构) ===
-// 这种结构允许同一架飞机有多条不同时间的故障记录
-const allFaultRecords = [
-  // 记录 1: B-1234 的 高温故障
-  {
-    planeId: 'B-1234',
-    flightNo: 'XXX2535',
-    faultName: '压缩机出口温度过高',
-    date: '2026-01-08 15:15', // 必须与查询列表的时间完全一致
-    unit: '℃',
-    hasData: true,
-    chart1Title: '异常参数趋势 (温度异常 > 80℃)',
-    threshold1: 70,
-    takeoffData: [25, 26, 26, 58, 80, 85, 90, 95, 86, 88, 85, 80],
-    chart2Title: '异常参数趋势 (温度波动)',
-    threshold2: 70,
-    descentData: [60, 62, 58, 55, 80, 48, 85, 42, 96, 38, 86, 30]
-  },
-  // 记录 2: B-1234 的 另一次故障 (同一架飞机，不同时间，不同故障)
-  {
-    planeId: 'B-1234',
-    flightNo: 'XXX2535',
-    faultName: '转速超阈值',
-    date: '2026-01-08 15:15', // 假设同一时间发生的并发故障
-    unit: 'RPM',
-    hasData: true,
-    chart1Title: '引擎转速监测',
-    threshold1: 9000,
-    takeoffData: [8000, 8100, 9500, 9600, 8500, 8200, 8000, 8000, 8000, 8000, 8000, 8000],
-    chart2Title: '转速波动',
-    threshold2: 9000,
-    descentData: [5000, 4000, 3000, 2000, 1000, 800, 0, 0, 0, 0, 0, 0]
-  },
-  // 记录 3: B-1236 的 漏气故障
-  {
-    planeId: 'B-1236',
-    flightNo: 'XXX405',
-    faultName: '环境管道漏气',
-    date: '2026-02-01 16:20',
-    unit: 'PSI',
-    hasData: true,
-    chart1Title: '管道压力监测',
-    threshold1: 40,
-    takeoffData: [35, 35, 36, 35, 34, 35, 35, 36, 35, 34, 35, 35],
-    chart2Title: '压力异常骤降',
-    threshold2: 20,
-    descentData: [35, 34, 30, 25, 15, 10, 8, 5, 5, 4, 2, 0]
-  }
-]
-
-// 默认空数据对象
-const defaultData = {
-  planeId: '-',
-  faultName: '未知故障',
-  flightNo: '-',
-  date: '-',
-  unit: '',
-  hasData: false, // 标记为无数据
+// === 修改点: 当前故障数据，初始为空 ===
+const currentFault = ref({
+  hasData: false,
+  planeId: '',
+  flightNo: '',
+  faultName: '',
+  date: '',
   chart1Title: '', threshold1: 0, takeoffData: [],
-  chart2Title: '', threshold2: 0, descentData: []
+  chart2Title: '', threshold2: 0, descentData: [],
+  unit: ''
+})
+
+// === 获取详情数据 ===
+const fetchDetail = async () => {
+  try {
+    const res = await axios.post('http://127.0.0.1:5000/plane/faults/detail', {
+      planeId: paramId.value,
+      date: queryDate.value,
+      fault: queryFault.value
+    })
+
+    if (res.data.code === 200) {
+      currentFault.value = res.data.data
+    }
+  } catch (e) {
+    console.error('获取详情失败', e)
+    // 可以在这里加个 ElMessage.error('获取详情失败')
+  }
 }
 
-// === 核心逻辑：多条件精确查找 ===
-const currentFault = computed(() => {
-  // 在数据库中查找同时满足：飞机号、时间和故障名的记录
-  const found = allFaultRecords.find(item => {
-    // 1. 比对飞机号
-    const matchId = item.planeId === paramId.value
-
-    // 2. 比对时间 (如果列表页传的时间是完整字符串，直接全等比较)
-    // 注意：实际项目中可能只需要比对到分钟，这里假设字符串完全一致
-    const matchDate = item.date === queryDate.value
-
-    // 3. 比对故障名称 (防止同一时间有多个不同故障)
-    const matchFault = item.faultName === queryFault.value
-
-    return matchId && matchDate && matchFault
-  })
-
-  return found || defaultData
+onMounted(() => {
+  fetchDetail()
 })
 </script>
 

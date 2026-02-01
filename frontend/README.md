@@ -98,6 +98,7 @@ echarts
 sass (开发依赖)
 npm install xlsx
 npm install pinia
+npm install axios
 
 3. 启动开发服务器
 npm run dev

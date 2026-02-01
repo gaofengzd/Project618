@@ -4,3 +4,4 @@ class Config:
     # 格式: mysql+pymysql://用户名:密码@地址:端口/数据库名
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost/flask_618_demo?charset=utf8mb4'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_SECRET_KEY = 'super-secret-key'  # 用于加密 Token，生产环境请修改

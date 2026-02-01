@@ -76,22 +76,23 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
 
 // === 1. 定义数据源 ===
 // 原始数据 (Source of Truth)：这部分数据通常从后端 API 获取，这里写死作为模拟
-const allPlanes = [
-  { id: 'B-1234', flightNo: 'XXX2535', model: 'A320', status: 'H', routeFrom: 'LHD', routeTo: 'LAX', time: '2023-07-20 09:22' },
-  { id: 'B-1235', flightNo: 'XXX3863', model: 'A320', status: 'M', routeFrom: 'CAN', routeTo: 'HGH', time: '2023-07-14 12:36' },
-  { id: 'B-1236', flightNo: 'XXX405', model: 'A320', status: 'G', routeFrom: 'SZX', routeTo: 'FRA', time: '2023-02-06 17:33' },
-  { id: 'B-1237', flightNo: 'XXX406', model: 'A320', status: 'G', routeFrom: 'SZX', routeTo: 'FRA', time: '2023-02-06 17:33' },
-  { id: 'B-1238', flightNo: 'XXX407', model: 'B737', status: 'G', routeFrom: 'PEK', routeTo: 'SHA', time: '2023-02-06 18:00' },
-  { id: 'B-9999', flightNo: 'XXX888', model: 'B737', status: 'M', routeFrom: 'CTU', routeTo: 'XIY', time: '2023-02-07 10:00' },
-]
+// const allPlanes = [
+//   { id: 'B-1234', flightNo: 'XXX2535', model: 'A320', status: 'H', routeFrom: 'LHD', routeTo: 'LAX', time: '2023-07-20 09:22' },
+//   { id: 'B-1235', flightNo: 'XXX3863', model: 'A320', status: 'M', routeFrom: 'CAN', routeTo: 'HGH', time: '2023-07-14 12:36' },
+//   { id: 'B-1236', flightNo: 'XXX405', model: 'A320', status: 'G', routeFrom: 'SZX', routeTo: 'FRA', time: '2023-02-06 17:33' },
+//   { id: 'B-1237', flightNo: 'XXX406', model: 'A320', status: 'G', routeFrom: 'SZX', routeTo: 'FRA', time: '2023-02-06 17:33' },
+//   { id: 'B-1238', flightNo: 'XXX407', model: 'B737', status: 'G', routeFrom: 'PEK', routeTo: 'SHA', time: '2023-02-06 18:00' },
+//   { id: 'B-9999', flightNo: 'XXX888', model: 'B737', status: 'M', routeFrom: 'CTU', routeTo: 'XIY', time: '2023-02-07 10:00' },
+// ]
+const allPlanes = ref<any[]>([]) // 存储从后端拿回来的原始数据
+const filteredPlaneList = ref<any[]>([]) // 存储用于展示的（筛选后的）数据
 
-// 展示数据 (Display List)：页面 v-for 实际遍历的数组
-const filteredPlaneList = ref([...allPlanes])
 
 // === 2. 搜索表单状态 ===
 const searchForm = reactive({
@@ -99,11 +100,31 @@ const searchForm = reactive({
   model: ''
 })
 
+// === 3. 获取数据的函数 (新增) ===
+const fetchPlanes = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:5000//plane/plane_message')
+    if (res.data.code === 200) {
+      // 将后端数据赋值给 allPlanes
+      allPlanes.value = res.data.data
+      // 初始化展示列表（默认展示所有）
+      filteredPlaneList.value = [...allPlanes.value]
+    }
+  } catch (error) {
+    console.error('获取机队数据失败:', error)
+  }
+}
+
+// === 4. 生命周期 (新增) ===
+onMounted(() => {
+  fetchPlanes() // 页面一加载就去后端拉数据
+})
+
 // === 3. 核心功能逻辑 ===
 
 // 搜索功能
 const handleSearch = () => {
-  filteredPlaneList.value = allPlanes.filter(plane => {
+  filteredPlaneList.value = allPlanes.value.filter(plane => {
     // 逻辑：如果输入框有值，就检查是否包含；如果为空，则默认为 true (不过滤)
 
     // 1. 匹配机号 (支持模糊搜索，忽略大小写)
@@ -122,7 +143,7 @@ const handleReset = () => {
   searchForm.id = ''
   searchForm.model = ''
   // 恢复列表为所有数据
-  filteredPlaneList.value = [...allPlanes]
+  filteredPlaneList.value = [...allPlanes.value]
 }
 
 // 获取状态样式类
