@@ -6,6 +6,17 @@
           <el-input
             v-model="searchForm.planeId"
             placeholder="请输入 (如 B-1234)"
+            style="width: 150px"
+            clearable
+            @keyup.enter="handleSearch"
+          />
+        </el-form-item>
+        <el-form-item label="故障名称">
+          <el-input
+            v-model="searchForm.faultName"
+            placeholder="支持模糊搜索(如 温度)"
+            style="width: 170px"
+
             clearable
             @keyup.enter="handleSearch"
           />
@@ -18,12 +29,15 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             value-format="YYYY-MM-DD"
-            style="width: 260px"
+            style="width: 230px;"
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="Search" @click="handleSearch">搜索</el-button>
-          <el-button icon="Refresh" @click="handleReset">重置</el-button>
+        <!-- <el-form-item style="margin-bottom: 0; display: flex; justify-content: center; width: 100%;" class="no-margin-right">
+          <div style="width: 100%; display: flex; justify-content: center;"> -->
+            <el-button type="primary" icon="Search" @click="handleSearch">搜索</el-button>
+            <el-button icon="Refresh" @click="handleReset">重置</el-button>
+          <!-- </div> -->
         </el-form-item>
       </el-form>
     </el-card>
@@ -102,6 +116,7 @@ const filteredTableData = ref([...allTableData])
 // === 2. 搜索表单 ===
 const searchForm = reactive({
   planeId: '',
+  faultName: '', // 新增字段
   dateRange: [] as string[] // 存储 [开始日期, 结束日期]
 })
 
@@ -110,8 +125,9 @@ const handleSearch = () => {
   filteredTableData.value = allTableData.filter(item => {
     // 1. 匹配机号 (模糊搜索，忽略大小写)
     const matchId = !searchForm.planeId || item.planeId.toLowerCase().includes(searchForm.planeId.toLowerCase())
-
-    // 2. 匹配日期范围
+    // 2. 匹配故障名称 (新增逻辑：模糊搜索)
+    const matchFault = !searchForm.faultName || item.fault.includes(searchForm.faultName)
+    // 3. 匹配日期范围
     let matchDate = true
     if (searchForm.dateRange && searchForm.dateRange.length === 2) {
       const itemDate = new Date(item.date).getTime()
@@ -121,7 +137,7 @@ const handleSearch = () => {
       matchDate = itemDate >= startDate && itemDate <= endDate
     }
 
-    return matchId && matchDate
+    return matchId && matchFault && matchDate
   })
 }
 

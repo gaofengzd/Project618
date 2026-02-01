@@ -2,7 +2,7 @@
   <div class="fleet-monitor">
     <el-card class="filter-card">
       <el-form :inline="true" :model="searchForm">
-        <el-form-item label="飞机注册号">
+        <el-form-item label="飞机号">
           <el-input
             v-model="searchForm.id"
             placeholder="请输入 (如 B-1234)"
@@ -140,6 +140,7 @@ const goToAnalysis = (id: string) => {
 
 <style scoped lang="scss">
 .filter-card { margin-bottom: 20px; }
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
